@@ -35,25 +35,101 @@ class _InputSheetState extends State<InputSheet> {
     loadData();
   }
 
+  Future<void> deleteAll() async {
+    bool? confirm = await showDialog<bool>(
+      context: context,
+
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Delete All Records?"),
+
+          content: const Text(
+            "All production data will be removed permanently.",
+          ),
+
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+
+              child: const Text("Cancel"),
+            ),
+
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+
+              child: const Text(
+                "Delete",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      await DatabaseHelper.instance.deleteAllProductions();
+
+      loadData();
+    }
+  }
+
+  Widget headerCell(String text) {
+    return Container(
+      alignment: Alignment.center,
+
+      padding: const EdgeInsets.all(8),
+
+      child: Text(
+        text,
+
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Production Sheet")),
+      backgroundColor: const Color(0xffeeeeee),
+
+      appBar: AppBar(
+        title: const Text("Production Input Sheet"),
+
+        actions: [
+          IconButton(icon: const Icon(Icons.refresh), onPressed: loadData),
+        ],
+      ),
 
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(10),
+          Container(
+            margin: const EdgeInsets.all(8),
+
+            padding: const EdgeInsets.all(12),
+
+            decoration: BoxDecoration(
+              color: Colors.white,
+
+              border: Border.all(color: Colors.black26),
+            ),
 
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
               children: [
                 Text(
-                  "Total Records : ${records.length}",
+                  "TOTAL RECORDS : ${records.length}",
 
                   style: const TextStyle(
                     fontSize: 18,
+
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -67,51 +143,9 @@ class _InputSheetState extends State<InputSheet> {
 
                   icon: const Icon(Icons.delete_forever),
 
-                  label: const Text("Delete Table"),
+                  label: const Text("Delete"),
 
-                  onPressed: () async {
-                    bool? confirm = await showDialog<bool>(
-                      context: context,
-
-                      builder: (context) {
-                        return AlertDialog(
-                          title: const Text("Delete All Data?"),
-
-                          content: const Text(
-                            "This will remove all production records permanently.",
-                          ),
-
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context, false);
-                              },
-
-                              child: const Text("Cancel"),
-                            ),
-
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                              ),
-
-                              onPressed: () {
-                                Navigator.pop(context, true);
-                              },
-
-                              child: const Text("Delete"),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-
-                    if (confirm == true) {
-                      await DatabaseHelper.instance.deleteAllProductions();
-
-                      loadData();
-                    }
-                  },
+                  onPressed: deleteAll,
                 ),
               ],
             ),
@@ -119,91 +153,124 @@ class _InputSheetState extends State<InputSheet> {
 
           Expanded(
             child: records.isEmpty
-                ? const Center(child: Text("No Records"))
-                : SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
+                ? const Center(child: Text("No Production Records"))
+                : Container(
+                    margin: const EdgeInsets.all(8),
 
-                    child: DataTable(
-                      columnSpacing: 30,
+                    color: Colors.white,
 
-                      border: TableBorder.all(),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
 
-                      columns: const [
-                        DataColumn(label: Text("No")),
+                      child: SingleChildScrollView(
+                        child: DataTable(
+                          headingRowColor: MaterialStateProperty.all(
+                            const Color(0xffdddddd),
+                          ),
 
-                        DataColumn(label: Text("M.No")),
+                          dataRowHeight: 42,
 
-                        DataColumn(label: Text("P.Code")),
+                          headingRowHeight: 45,
 
-                        DataColumn(label: Text("Plant")),
+                          columnSpacing: 28,
 
-                        DataColumn(label: Text("Tested")),
+                          border: TableBorder.all(color: Colors.black54),
 
-                        DataColumn(label: Text("Good")),
+                          columns: [
+                            DataColumn(label: headerCell("No")),
 
-                        DataColumn(label: Text("Reject")),
+                            DataColumn(label: headerCell("Machine")),
 
-                        DataColumn(label: Text("QA")),
+                            DataColumn(label: headerCell("Product")),
 
-                        DataColumn(label: Text("Sample")),
+                            DataColumn(label: headerCell("Plant")),
 
-                        DataColumn(label: Text("")),
-                      ],
+                            DataColumn(label: headerCell("Tested")),
 
-                      rows: records.asMap().entries.map((entry) {
-                        int index = entry.key;
+                            DataColumn(label: headerCell("Good")),
 
-                        Production item = entry.value;
+                            DataColumn(label: headerCell("Reject")),
 
-                        return DataRow(
-                          onSelectChanged: (value) {
-                            if (value == true) {
-                              Navigator.push(
-                                context,
+                            DataColumn(label: headerCell("QA")),
 
-                                MaterialPageRoute(
-                                  builder: (_) => EditRecord(production: item),
-                                ),
-                              ).then((_) {
-                                loadData();
-                              });
-                            }
-                          },
+                            DataColumn(label: headerCell("Sample")),
 
-                          cells: [
-                            DataCell(Text("${index + 1}")),
-
-                            DataCell(Text(item.machine)),
-
-                            DataCell(Text(item.productCode)),
-
-                            DataCell(Text(item.plant)),
-
-                            DataCell(Text(item.tested.toString())),
-
-                            DataCell(Text(item.good.toString())),
-
-                            DataCell(Text(item.reject.toString())),
-
-                            DataCell(Text(item.qa.toString())),
-
-                            DataCell(Text(item.sample.toString())),
-
-                            DataCell(
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.delete,
-                                  color: Colors.red,
-                                ),
-
-                                onPressed: () {
-                                  deleteRecord(item.id!);
-                                },
-                              ),
-                            ),
+                            DataColumn(label: headerCell("")),
                           ],
-                        );
-                      }).toList(),
+
+                          rows: records.asMap().entries.map((entry) {
+                            int index = entry.key;
+
+                            Production item = entry.value;
+
+                            return DataRow(
+                              color: MaterialStateProperty.resolveWith<Color?>((
+                                states,
+                              ) {
+                                if (index % 2 == 0) {
+                                  return const Color(0xfffafafa);
+                                }
+
+                                return null;
+                              }),
+
+                              onSelectChanged: (value) {
+                                if (value == true) {
+                                  Navigator.push(
+                                    context,
+
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          EditRecord(production: item),
+                                    ),
+                                  ).then((_) {
+                                    loadData();
+                                  });
+                                }
+                              },
+
+                              cells: [
+                                DataCell(Center(child: Text("${index + 1}"))),
+
+                                DataCell(Text(item.machine)),
+
+                                DataCell(Text(item.productCode)),
+
+                                DataCell(Text(item.plant)),
+
+                                DataCell(
+                                  Text(
+                                    (item.good + item.reject + item.qa)
+                                        .toString(),
+                                  ),
+                                ),
+
+                                DataCell(Text(item.good.toString())),
+
+                                DataCell(Text(item.reject.toString())),
+
+                                DataCell(Text(item.qa.toString())),
+
+                                DataCell(Text(item.sample.toString())),
+
+                                DataCell(
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+
+                                      color: Colors.red,
+                                    ),
+
+                                    onPressed: () {
+                                      deleteRecord(item.id!);
+                                    },
+                                  ),
+                                ),
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                      ),
                     ),
                   ),
           ),

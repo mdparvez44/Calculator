@@ -2,64 +2,69 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/provider.dart';
+import '../screens/daily.dart';
 import '../screens/gross.dart';
 import '../screens/input.dart';
-import '../screens/daily.dart';
 import '../screens/record.dart';
 
 class Keypad extends StatelessWidget {
   const Keypad({super.key});
 
-  Widget button(BuildContext context, String text, {Color? color}) {
+  Widget button(
+    BuildContext context,
+    String text, {
+
+    Color? color,
+
+    Color textColor = Colors.white,
+
+    IconData? icon,
+  }) {
     return Expanded(
       child: Padding(
-        padding: const EdgeInsets.all(5),
+        padding: const EdgeInsets.all(6),
 
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: color,
+            backgroundColor: color ?? const Color(0xff37474F),
 
-            padding: const EdgeInsets.all(20),
+            foregroundColor: textColor,
+
+            elevation: 5,
+
+            minimumSize: const Size(70, 70),
 
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(18),
             ),
           ),
 
           onPressed: () async {
             final provider = context.read<ProductionProvider>();
 
-            // Numbers
-
             if (text == "0" ||
                 text == "00" ||
                 text == "000" ||
                 int.tryParse(text) != null) {
               provider.addNumber(text);
-            }
-            // Delete last digit
-            else if (text == "X") {
+            } else if (text == "X") {
               provider.deleteOne();
-            }
-            // Clear current box
-            else if (text == "C") {
+            } else if (text == "C") {
               provider.clearCurrent();
-            }
-            // Clear all
-            else if (text == "AC") {
+            } else if (text == "AC") {
               provider.clearAll();
-            }
-            // Next field
-            else if (text == "✔") {
+            } else if (text == "✔") {
               await provider.nextField();
             } else if (text == "G") {
               Navigator.push(
                 context,
+
                 MaterialPageRoute(builder: (_) => const GrossScreen()),
               );
             } else if (text == "I") {
               Navigator.push(
                 context,
+
                 MaterialPageRoute(builder: (_) => const InputSheet()),
               );
             } else if (text == "D") {
@@ -77,23 +82,53 @@ class Keypad extends StatelessWidget {
             }
           },
 
-          child: Text(
-            text,
+          child: icon != null
+              ? Icon(icon, size: 32, color: Colors.white)
+              : Text(
+                  text,
 
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
+                  style: TextStyle(
+                    fontSize: 22,
+
+                    fontWeight: FontWeight.bold,
+
+                    color: textColor,
+                  ),
+                ),
         ),
       ),
     );
   }
 
+  Widget row(BuildContext context, List<Widget> buttons) {
+    return Row(children: buttons);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            button(context, "AC", color: Colors.red),
+    return Container(
+      padding: const EdgeInsets.all(8),
+
+      decoration: BoxDecoration(
+        color: const Color(0xff263238),
+
+        borderRadius: BorderRadius.circular(20),
+
+        boxShadow: [BoxShadow(blurRadius: 15, color: Colors.black26)],
+      ),
+
+      child: Column(
+        children: [
+          row(context, [
+            button(
+              context,
+
+              "AC",
+
+              color: Colors.red.shade700,
+
+              icon: Icons.delete_sweep,
+            ),
 
             button(context, "7"),
 
@@ -101,13 +136,21 @@ class Keypad extends StatelessWidget {
 
             button(context, "9"),
 
-            button(context, "I"),
-          ],
-        ),
+            button(context, "I", color: Colors.blue.shade700),
+          ]),
 
-        Row(
-          children: [
-            button(context, "X"),
+          row(context, [
+            // IMPORTANT:
+            // text remains X for operation
+            button(
+              context,
+
+              "X",
+
+              color: Colors.orange.shade700,
+
+              icon: Icons.backspace,
+            ),
 
             button(context, "4"),
 
@@ -115,13 +158,19 @@ class Keypad extends StatelessWidget {
 
             button(context, "6"),
 
-            button(context, "G"),
-          ],
-        ),
+            button(context, "G", color: Colors.green.shade700),
+          ]),
 
-        Row(
-          children: [
-            button(context, "C"),
+          row(context, [
+            button(
+              context,
+
+              "C",
+
+              color: Colors.orange.shade700,
+
+              icon: Icons.clear,
+            ),
 
             button(context, "1"),
 
@@ -129,24 +178,30 @@ class Keypad extends StatelessWidget {
 
             button(context, "3"),
 
-            button(context, "R"),
-          ],
-        ),
+            button(context, "R", color: Colors.purple.shade700),
+          ]),
 
-        Row(
-          children: [
-            button(context, "000"),
+          row(context, [
+            button(context, "0"),
 
             button(context, "00"),
 
-            button(context, "0"),
+            button(context, "000"),
 
-            button(context, "✔", color: Colors.green),
+            button(
+              context,
 
-            button(context, "D"),
-          ],
-        ),
-      ],
+              "✔",
+
+              color: Colors.green.shade800,
+
+              icon: Icons.check_circle,
+            ),
+
+            button(context, "D", color: Colors.teal.shade700),
+          ]),
+        ],
+      ),
     );
   }
 }

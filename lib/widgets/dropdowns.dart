@@ -8,35 +8,94 @@ class Dropdowns extends StatelessWidget {
   const Dropdowns({super.key});
 
   Widget dropBox(
+    BuildContext context,
     String title,
     String value,
     List<String> items,
+    IconData icon,
     Function(String) onChange,
   ) {
-    return Row(
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
+    return Container(
+      padding: const EdgeInsets.all(8),
 
-        const SizedBox(width: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
 
-        Expanded(
-          child: DropdownButtonFormField<String>(
+        borderRadius: BorderRadius.circular(12),
+
+        border: Border.all(color: Colors.black26),
+      ),
+
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 18),
+
+              const SizedBox(width: 6),
+
+              Text(
+                title,
+
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 5),
+
+          DropdownButtonFormField<String>(
             value: items.contains(value) ? value : items.first,
 
             isExpanded: true,
 
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              filled: true,
 
-              contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              fillColor: const Color(0xfff5f5f5),
+
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+
+                vertical: 8,
+              ),
+
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+
+                borderSide: const BorderSide(color: Colors.black26),
+              ),
             ),
 
-            items: items
-                .map((e) => DropdownMenuItem<String>(value: e, child: Text(e)))
-                .toList(),
+            style: const TextStyle(
+              fontSize: 16,
+
+              fontWeight: FontWeight.bold,
+
+              color: Colors.black,
+            ),
+
+            items: items.map((e) {
+              return DropdownMenuItem(
+                value: e,
+
+                child: Text(
+                  e,
+
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              );
+            }).toList(),
 
             onChanged: (v) {
               if (v != null) {
@@ -44,8 +103,8 @@ class Dropdowns extends StatelessWidget {
               }
             },
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -54,31 +113,61 @@ class Dropdowns extends StatelessWidget {
     final p = context.watch<ProductionProvider>();
 
     return Container(
+      margin: const EdgeInsets.all(10),
+
       padding: const EdgeInsets.all(12),
+
+      decoration: BoxDecoration(
+        color: const Color(0xffeceff1),
+
+        borderRadius: BorderRadius.circular(16),
+
+        boxShadow: [BoxShadow(blurRadius: 8, color: Colors.black12)],
+      ),
 
       child: Row(
         children: [
-          // ================= MACHINE =================
+          // MACHINE
           Expanded(
+            flex: 2,
+
             child: Row(
               children: [
                 Expanded(
-                  child: dropBox("M", p.machine, machines, (value) {
-                    p.changeMachine(value);
-                  }),
+                  child: dropBox(
+                    context,
+
+                    "Machine",
+
+                    p.machine,
+
+                    machines,
+
+                    Icons.precision_manufacturing,
+
+                    (value) {
+                      p.changeMachine(value);
+                    },
+                  ),
                 ),
 
                 const SizedBox(width: 8),
 
                 SizedBox(
-                  height: 55,
+                  height: 70,
 
                   child: ElevatedButton(
-                    onPressed: () {
-                      p.nextMachine();
-                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueGrey,
 
-                    child: const Icon(Icons.arrow_forward),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+
+                    onPressed: p.nextMachine,
+
+                    child: const Icon(Icons.skip_next, size: 28),
                   ),
                 ),
               ],
@@ -87,20 +176,34 @@ class Dropdowns extends StatelessWidget {
 
           const SizedBox(width: 12),
 
-          // ================= PLANT =================
+          // PLANT
           Expanded(
-            child: dropBox("P", p.plant, plants, (value) {
+            child: dropBox(context, "Plant", p.plant, plants, Icons.factory, (
+              value,
+            ) {
               p.changePlant(value);
             }),
           ),
 
           const SizedBox(width: 12),
 
-          // ================= PRODUCT CODE =================
+          // PRODUCT CODE
           Expanded(
-            child: dropBox("CD", p.productCode, productCodes, (value) {
-              p.changeProduct(value);
-            }),
+            child: dropBox(
+              context,
+
+              "Product Code",
+
+              p.productCode,
+
+              productCodes,
+
+              Icons.qr_code,
+
+              (value) {
+                p.changeProduct(value);
+              },
+            ),
           ),
         ],
       ),

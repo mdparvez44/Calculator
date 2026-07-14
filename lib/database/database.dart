@@ -68,15 +68,20 @@ tested INTEGER
   //---------------------------------------------
   // Read All Records
   //---------------------------------------------
-
   Future<List<Production>> getAllProductions() async {
     final db = await database;
 
-    final result = await db.query("production", orderBy: "id DESC");
+    final result = await db.rawQuery('''
+    SELECT *
+    FROM production
+    ORDER BY
+      SUBSTR(machine, 1, 1) ASC,
+      CAST(SUBSTR(machine, 2) AS INTEGER) ASC,
+      id ASC
+  ''');
 
     return result.map((e) => Production.fromMap(e)).toList();
   }
-
   //---------------------------------------------
   // Update Record
   //---------------------------------------------
@@ -102,33 +107,45 @@ tested INTEGER
     return await db.delete("production", where: "id=?", whereArgs: [id]);
   }
 
+  Future<void> deleteAllProductions() async {
+    final db = await database;
+
+    await db.delete("production");
+  }
+
   Future<List<Map<String, dynamic>>> getMachineGross() async {
     final db = await database;
 
     final result = await db.rawQuery('''
 
-  SELECT 
+SELECT
 
-  machine,
+machine,
 
-  SUM(tested) as totalTested
+SUM(
+  good +
+  reject +
+  qa +
+  sample
+) AS totalTested
 
 
-  FROM production
+FROM production
 
 
-  GROUP BY machine
+GROUP BY machine
 
 
-  ''');
+ORDER BY
+
+SUBSTR(machine,1,1),
+
+CAST(SUBSTR(machine,2) AS INTEGER)
+
+
+''');
 
     return result;
-  }
-
-  Future<void> deleteAllProductions() async {
-    final db = await database;
-
-    await db.delete("production");
   }
 
   Future<List<Map<String, dynamic>>> getDailyReport() async {
@@ -142,7 +159,12 @@ machine,
 
 GROUP_CONCAT(DISTINCT productCode) as productCodes,
 
-SUM(tested) as totalTested,
+SUM(
+ good +
+ reject +
+ qa +
+ sample
+) as totalTested,
 
 SUM(good) as totalGood,
 
@@ -171,23 +193,73 @@ ORDER BY machine
 
 SELECT
 
-productCode,
+CASE
+    WHEN plant = 'TTK'
+    THEN '(TTK) ' || productCode
+    ELSE productCode
+END AS productCode,
 
-SUM(tested) as totalTested,
 
-SUM(reject) as totalReject
+SUM(
+ good +
+ reject +
+ qa +
+ sample
+) as totalTested,
+
+
+SUM(reject) as totalReject,
+
+
+SUM(qa) as totalQA
 
 
 FROM production
 
 
-GROUP BY productCode
+GROUP BY
+
+CASE
+    WHEN plant = 'TTK'
+    THEN '(TTK) ' || productCode
+    ELSE productCode
+END
 
 
 ORDER BY productCode
 
-
 ''');
+
+    return result;
+  }
+
+  Future<List<Map<String, dynamic>>> getPlantRecord() async {
+    final db = await database;
+
+    final result = await db.rawQuery('''
+    SELECT
+      plant,
+      productCode,
+      SUM(tested) AS totalTested,
+      SUM(reject) AS totalReject
+
+    FROM production
+
+    GROUP BY plant, productCode
+
+    ORDER BY
+      CASE plant
+        WHEN 'TTK' THEN 0
+        WHEN 'A' THEN 1
+        WHEN 'B' THEN 2
+        WHEN 'C' THEN 3
+        WHEN 'D' THEN 4
+        WHEN 'E' THEN 5
+        WHEN 'F' THEN 6
+        WHEN 'G' THEN 7
+      END,
+      productCode;
+  ''');
 
     return result;
   }

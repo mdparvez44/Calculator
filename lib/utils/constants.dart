@@ -39,11 +39,9 @@ const List<String> machines = [
   "M2",
 ];
 
-const List<String> plants = ["A", "B", "C", "D", "E", "F", "G"];
+const List<String> plants = ["TTK", "A", "B", "C", "D", "E", "F", "G"];
 
 const List<String> productCodes = [
-  "TTK",
-
   "N53PM",
 
   "N40UM",

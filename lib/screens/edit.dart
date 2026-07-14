@@ -53,6 +53,16 @@ class _EditRecordState extends State<EditRecord> {
     );
   }
 
+  int get tested {
+    int good = int.tryParse(goodController.text) ?? 0;
+
+    int reject = int.tryParse(rejectController.text) ?? 0;
+
+    int qa = int.tryParse(qaController.text) ?? 0;
+
+    return good + reject + qa;
+  }
+
   Future<void> updateRecord() async {
     int good = int.tryParse(goodController.text) ?? 0;
 
@@ -61,10 +71,6 @@ class _EditRecordState extends State<EditRecord> {
     int qa = int.tryParse(qaController.text) ?? 0;
 
     int sample = int.tryParse(sampleController.text) ?? 0;
-
-    print("Machine: $machine");
-    print("Plant: $plant");
-    print("Product: $productCode");
 
     Production updated = Production(
       id: widget.production.id,
@@ -83,7 +89,8 @@ class _EditRecordState extends State<EditRecord> {
 
       sample: sample,
 
-      tested: good + reject + qa + sample,
+      // sample not included
+      tested: good + reject + qa,
     );
 
     await DatabaseHelper.instance.updateProduction(updated);
@@ -96,27 +103,34 @@ class _EditRecordState extends State<EditRecord> {
     String value,
     List<String> items,
     Function(String) change,
+    IconData icon,
   ) {
-    return Padding(
-      padding: const EdgeInsets.all(8),
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 6),
 
       child: DropdownButtonFormField<String>(
-        initialValue: items.contains(value) ? value : items.first,
+        value: items.contains(value) ? value : items.first,
 
         decoration: InputDecoration(
           labelText: title,
 
-          border: const OutlineInputBorder(),
+          prefixIcon: Icon(icon),
+
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
 
         items: items.map((e) {
-          return DropdownMenuItem<String>(value: e, child: Text(e));
+          return DropdownMenuItem(
+            value: e,
+
+            child: Text(e, style: const TextStyle(fontWeight: FontWeight.bold)),
+          );
         }).toList(),
 
-        onChanged: (newValue) {
-          if (newValue != null) {
+        onChanged: (v) {
+          if (v != null) {
             setState(() {
-              change(newValue);
+              change(v);
             });
           }
         },
@@ -124,19 +138,30 @@ class _EditRecordState extends State<EditRecord> {
     );
   }
 
-  Widget input(String title, TextEditingController controller) {
-    return Padding(
-      padding: const EdgeInsets.all(8),
+  Widget input(
+    String title,
+    TextEditingController controller,
+    IconData icon,
+    Color color,
+  ) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 6),
 
       child: TextField(
         controller: controller,
 
         keyboardType: TextInputType.number,
 
+        onChanged: (v) {
+          setState(() {});
+        },
+
         decoration: InputDecoration(
           labelText: title,
 
-          border: const OutlineInputBorder(),
+          prefixIcon: Icon(icon, color: color),
+
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
     );
@@ -145,39 +170,123 @@ class _EditRecordState extends State<EditRecord> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Edit Record")),
+      backgroundColor: const Color(0xffeeeeee),
 
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            dropdown("Machine", machine, machines, (v) {
-              machine = v;
-            }),
+      appBar: AppBar(title: const Text("Edit Production Record")),
 
-            dropdown("Plant", plant, plants, (v) {
-              plant = v;
-            }),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Container(
+            width: 600,
 
-            dropdown("Product Code", productCode, productCodes, (v) {
-              productCode = v;
-            }),
+            margin: const EdgeInsets.all(15),
 
-            input("Good", goodController),
+            padding: const EdgeInsets.all(20),
 
-            input("Reject", rejectController),
+            decoration: BoxDecoration(
+              color: Colors.white,
 
-            input("QA", qaController),
+              borderRadius: BorderRadius.circular(18),
 
-            input("Sample", sampleController),
-
-            const SizedBox(height: 20),
-
-            ElevatedButton(
-              onPressed: updateRecord,
-
-              child: const Text("UPDATE"),
+              boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black12)],
             ),
-          ],
+
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+
+              children: [
+                const Text(
+                  "Record Details",
+
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 15),
+
+                dropdown("Machine", machine, machines, (v) {
+                  machine = v;
+                }, Icons.precision_manufacturing),
+
+                dropdown("Plant", plant, plants, (v) {
+                  plant = v;
+                }, Icons.factory),
+
+                dropdown("Product Code", productCode, productCodes, (v) {
+                  productCode = v;
+                }, Icons.qr_code),
+
+                const Divider(height: 30),
+
+                input("Good", goodController, Icons.check_circle, Colors.green),
+
+                input("Reject", rejectController, Icons.cancel, Colors.red),
+
+                input("QA", qaController, Icons.science, Colors.blue),
+
+                input(
+                  "Sample",
+                  sampleController,
+                  Icons.inventory,
+                  Colors.orange,
+                ),
+
+                Container(
+                  margin: const EdgeInsets.only(top: 15),
+
+                  padding: const EdgeInsets.all(15),
+
+                  decoration: BoxDecoration(
+                    color: Colors.blueGrey.shade50,
+
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                    children: [
+                      const Text(
+                        "Tested",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+
+                      Text(
+                        tested.toString(),
+
+                        style: const TextStyle(
+                          fontSize: 22,
+
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 25),
+
+                SizedBox(
+                  width: double.infinity,
+
+                  height: 55,
+
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.save),
+
+                    label: const Text(
+                      "UPDATE RECORD",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    onPressed: updateRecord,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
