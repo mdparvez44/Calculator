@@ -186,81 +186,33 @@ ORDER BY machine
     return result;
   }
 
-  Future<List<Map<String, dynamic>>> getProductRecord() async {
-    final db = await database;
-
-    final result = await db.rawQuery('''
-
-SELECT
-
-CASE
-    WHEN plant = 'TTK'
-    THEN '(TTK) ' || productCode
-    ELSE productCode
-END AS productCode,
-
-
-SUM(
- good +
- reject +
- qa +
- sample
-) as totalTested,
-
-
-SUM(reject) as totalReject,
-
-
-SUM(qa) as totalQA
-
-
-FROM production
-
-
-GROUP BY
-
-CASE
-    WHEN plant = 'TTK'
-    THEN '(TTK) ' || productCode
-    ELSE productCode
-END
-
-
-ORDER BY productCode
-
-''');
-
-    return result;
-  }
-
   Future<List<Map<String, dynamic>>> getPlantRecord() async {
     final db = await database;
 
-    final result = await db.rawQuery('''
-    SELECT
-      plant,
-      productCode,
-      SUM(tested) AS totalTested,
-      SUM(reject) AS totalReject
+    return await db.rawQuery('''
 
-    FROM production
+SELECT
+plant,
+productCode,
 
-    GROUP BY plant, productCode
+SUM(
+ good + reject + qa + sample
+) AS totalTested,
 
-    ORDER BY
-      CASE plant
-        WHEN 'TTK' THEN 0
-        WHEN 'A' THEN 1
-        WHEN 'B' THEN 2
-        WHEN 'C' THEN 3
-        WHEN 'D' THEN 4
-        WHEN 'E' THEN 5
-        WHEN 'F' THEN 6
-        WHEN 'G' THEN 7
-      END,
-      productCode;
-  ''');
+SUM(reject) AS totalReject,
 
-    return result;
+SUM(qa) AS totalQA
+
+FROM production
+
+GROUP BY
+plant,
+productCode
+
+ORDER BY
+plant,
+productCode;
+
+''');
   }
 }

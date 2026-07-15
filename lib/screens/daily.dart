@@ -13,15 +13,24 @@ class _DailyReportState extends State<DailyReport> {
   List<Map<String, dynamic>> data = [];
 
   double totalTested = 0;
-
   double totalReject = 0;
-
+  double totalQA = 0;
   double totalGood = 0;
+
+  // Truncate to 2 decimal places (NO ROUNDING)
+  double truncateTo2(double value) {
+    return (value * 100).truncate() / 100;
+  }
+
+  // Convert SQLite values safely
+  double toDouble(dynamic value) {
+    if (value == null) return 0;
+    return double.tryParse(value.toString()) ?? 0;
+  }
 
   @override
   void initState() {
     super.initState();
-
     loadReport();
   }
 
@@ -29,25 +38,33 @@ class _DailyReportState extends State<DailyReport> {
     final result = await DatabaseHelper.instance.getDailyReport();
 
     double tested = 0;
-
     double reject = 0;
-
+    double qa = 0;
     double good = 0;
 
     for (var item in result) {
-      tested += (item["totalTested"] ?? 0) / 144;
+      double itemTested = toDouble(item["totalTested"]) / 144;
 
-      reject += (item["totalReject"] ?? 0) / 144;
+      double itemReject = toDouble(item["totalReject"]) / 144;
 
-      good += (item["totalGood"] ?? 0) / 144;
+      double itemQA = toDouble(item["totalQA"]) / 144;
+
+      tested += itemTested;
+      reject += itemReject;
+      qa += itemQA;
+
+      // GOOD = TESTED - (REJECT + QA + SAMPLE)
     }
+    good = truncateTo2(tested) - truncateTo2(reject) - truncateTo2(qa);
 
     setState(() {
       data = result;
 
-      totalTested = tested;
+      totalTested = truncateTo2(tested);
 
-      totalReject = reject;
+      totalReject = truncateTo2(reject);
+
+      totalQA = truncateTo2(qa);
 
       totalGood = good;
     });
@@ -57,11 +74,8 @@ class _DailyReportState extends State<DailyReport> {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(10),
-
         margin: const EdgeInsets.all(5),
-
         decoration: BoxDecoration(border: Border.all(color: Colors.black26)),
-
         child: Column(
           children: [
             Text(title, style: const TextStyle(fontSize: 12)),
@@ -70,7 +84,6 @@ class _DailyReportState extends State<DailyReport> {
 
             Text(
               value,
-
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
           ],
@@ -82,10 +95,8 @@ class _DailyReportState extends State<DailyReport> {
   Widget tableHeader(String text) {
     return Padding(
       padding: const EdgeInsets.all(6),
-
       child: Text(
         text,
-
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
       ),
     );
@@ -95,7 +106,7 @@ class _DailyReportState extends State<DailyReport> {
   Widget build(BuildContext context) {
     double rejectPercent = totalTested == 0
         ? 0
-        : (totalReject / totalTested) * 100;
+        : truncateTo2((totalReject / totalTested) * 100);
 
     return Scaffold(
       backgroundColor: const Color(0xffdddddd),
@@ -131,7 +142,6 @@ class _DailyReportState extends State<DailyReport> {
 
                         style: TextStyle(
                           fontSize: 24,
-
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -154,6 +164,8 @@ class _DailyReportState extends State<DailyReport> {
                     reportBox("Good Gross", totalGood.toStringAsFixed(2)),
 
                     reportBox("Reject Gross", totalReject.toStringAsFixed(2)),
+
+                    reportBox("QA Gross", totalQA.toStringAsFixed(2)),
 
                     reportBox(
                       "Reject %",
@@ -193,23 +205,35 @@ class _DailyReportState extends State<DailyReport> {
                     ],
 
                     rows: data.map((item) {
-                      double tested = (item["totalTested"] ?? 0) / 144;
+                      double tested = truncateTo2(
+                        toDouble(item["totalTested"]) / 144,
+                      );
 
-                      double good = (item["totalGood"] ?? 0) / 144;
+                      double reject = truncateTo2(
+                        toDouble(item["totalReject"]) / 144,
+                      );
 
-                      double reject = (item["totalReject"] ?? 0) / 144;
+                      double qa = truncateTo2(toDouble(item["totalQA"]) / 144);
 
-                      double qa = (item["totalQA"] ?? 0) / 144;
+                      double sample = truncateTo2(
+                        toDouble(item["totalSample"]) / 144,
+                      );
+
+                      double good = truncateTo2(
+                        tested - (reject + qa + sample),
+                      );
 
                       double percent = tested == 0
                           ? 0
-                          : (reject / tested) * 100;
+                          : truncateTo2((reject / tested) * 100);
 
                       return DataRow(
                         cells: [
-                          DataCell(Text(item["machine"])),
+                          DataCell(Text(item["machine"].toString())),
 
-                          DataCell(Text(item["productCodes"] ?? "")),
+                          DataCell(
+                            Text(item["productCodes"]?.toString() ?? ""),
+                          ),
 
                           DataCell(Text(tested.toStringAsFixed(2))),
 
@@ -226,18 +250,6 @@ class _DailyReportState extends State<DailyReport> {
                       );
                     }).toList(),
                   ),
-                ),
-
-                const SizedBox(height: 40),
-
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                  children: [
-                    Text("Prepared By : __________"),
-
-                    Text("Checked By : __________"),
-                  ],
                 ),
               ],
             ),

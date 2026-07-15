@@ -16,6 +16,11 @@ class _GrossScreenState extends State<GrossScreen> {
 
   double totalGross = 0;
 
+  // Truncate to 2 decimal places (NO rounding)
+  double truncateTo2(double value) {
+    return (value * 100).truncate() / 100;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -37,7 +42,7 @@ class _GrossScreenState extends State<GrossScreen> {
 
       totalTested = tested;
 
-      totalGross = tested / 144;
+      totalGross = truncateTo2(tested / 144);
     });
   }
 
@@ -45,28 +50,19 @@ class _GrossScreenState extends State<GrossScreen> {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.all(6),
-
         padding: const EdgeInsets.all(12),
-
         decoration: BoxDecoration(
           color: Colors.white,
-
           borderRadius: BorderRadius.circular(10),
-
           border: Border.all(color: Colors.black12),
         ),
-
         child: Column(
           children: [
             Icon(icon, size: 28),
-
             const SizedBox(height: 5),
-
             Text(title, style: const TextStyle(fontSize: 13)),
-
             Text(
               value,
-
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ],
@@ -78,10 +74,8 @@ class _GrossScreenState extends State<GrossScreen> {
   Widget header(String text) {
     return Padding(
       padding: const EdgeInsets.all(8),
-
       child: Text(
         text,
-
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
       ),
     );
@@ -91,43 +85,31 @@ class _GrossScreenState extends State<GrossScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffeeeeee),
-
       appBar: AppBar(
         title: const Text("Machine Gross Sheet"),
-
         actions: [
           IconButton(icon: const Icon(Icons.refresh), onPressed: loadGross),
         ],
       ),
-
       body: Column(
         children: [
           Container(
             margin: const EdgeInsets.all(8),
-
             child: Row(
               children: [
                 summaryBox(
                   "Machines",
-
                   data.length.toString(),
-
                   Icons.precision_manufacturing,
                 ),
-
                 summaryBox(
                   "Tested",
-
                   totalTested.toString(),
-
                   Icons.check_circle,
                 ),
-
                 summaryBox(
                   "Gross",
-
                   totalGross.toStringAsFixed(2),
-
                   Icons.analytics,
                 ),
               ],
@@ -143,36 +125,24 @@ class _GrossScreenState extends State<GrossScreen> {
                   )
                 : Container(
                     margin: const EdgeInsets.all(8),
-
                     color: Colors.white,
-
                     child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,
-
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
-
                         child: DataTable(
                           headingRowHeight: 50,
-
                           dataRowHeight: 45,
-
                           columnSpacing: 45,
-
                           border: TableBorder.all(color: Colors.black45),
-
                           headingRowColor: MaterialStateProperty.all(
                             const Color(0xffdddddd),
                           ),
-
                           columns: [
                             DataColumn(label: header("Machine")),
-
                             DataColumn(label: header("Tested")),
-
                             DataColumn(label: header("Gross")),
                           ],
-
                           rows: data.asMap().entries.map((entry) {
                             int index = entry.key;
 
@@ -180,7 +150,7 @@ class _GrossScreenState extends State<GrossScreen> {
 
                             int tested = item["totalTested"] ?? 0;
 
-                            double gross = tested / 144;
+                            double gross = truncateTo2(tested / 144);
 
                             return DataRow(
                               color: MaterialStateProperty.resolveWith<Color?>((
@@ -189,17 +159,14 @@ class _GrossScreenState extends State<GrossScreen> {
                                 if (index % 2 == 0) {
                                   return const Color(0xfffafafa);
                                 }
-
                                 return null;
                               }),
-
                               cells: [
                                 DataCell(
                                   Row(
                                     children: [
                                       CircleAvatar(
                                         radius: 15,
-
                                         child: Text(
                                           item["machine"].toString().substring(
                                             0,
@@ -207,12 +174,9 @@ class _GrossScreenState extends State<GrossScreen> {
                                           ),
                                         ),
                                       ),
-
                                       const SizedBox(width: 10),
-
                                       Text(
                                         item["machine"].toString(),
-
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -220,13 +184,10 @@ class _GrossScreenState extends State<GrossScreen> {
                                     ],
                                   ),
                                 ),
-
                                 DataCell(Text(tested.toString())),
-
                                 DataCell(
                                   Text(
                                     gross.toStringAsFixed(2),
-
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                     ),
