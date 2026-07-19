@@ -103,11 +103,16 @@ class ProductionProvider extends ChangeNotifier {
       return false;
     }
 
-    await saveCurrentRecord();
-
-    clearAll();
-
-    return true;
+    try {
+      await saveCurrentRecord();
+      debugPrint("Record saved successfully");
+      clearAll();
+      return true;
+    } catch (e, s) {
+      debugPrint("Save failed: $e");
+      debugPrintStack(stackTrace: s);
+      return false;
+    }
   }
 
   // ================= Dropdowns =================
@@ -145,23 +150,30 @@ class ProductionProvider extends ChangeNotifier {
 
   // ================= Save Data =================
   Future<void> saveCurrentRecord() async {
-    final int goodValue = int.tryParse(good) ?? 0;
-    final int rejectValue = int.tryParse(reject) ?? 0;
-    final int qaInput = int.tryParse(qa) ?? 0;
-    final int qaValue = qaInput * 95;
-    final int sampleValue = int.tryParse(sample) ?? 0;
+    try {
+      final int goodValue = int.tryParse(good) ?? 0;
+      final int rejectValue = int.tryParse(reject) ?? 0;
+      final int qaInput = int.tryParse(qa) ?? 0;
+      final int qaValue = qaInput * 95;
+      final int sampleValue = int.tryParse(sample) ?? 0;
 
-    final production = Production(
-      machine: machine,
-      plant: plant,
-      productCode: productCode,
-      good: goodValue,
-      reject: rejectValue,
-      qa: qaValue,
-      sample: sampleValue,
-      tested: goodValue + rejectValue + qaValue + sampleValue,
-    );
+      final production = Production(
+        machine: machine,
+        plant: plant,
+        productCode: productCode,
+        good: goodValue,
+        reject: rejectValue,
+        qa: qaValue,
+        sample: sampleValue,
+        tested: goodValue + rejectValue + qaValue + sampleValue,
+      );
 
-    await DatabaseHelper.instance.insertProduction(production);
+      final id = await DatabaseHelper.instance.insertProduction(production);
+
+      debugPrint("Saved record id = $id");
+    } catch (e, s) {
+      debugPrint("SAVE ERROR: $e");
+      debugPrintStack(stackTrace: s);
+    }
   }
 }

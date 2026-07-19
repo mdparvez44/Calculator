@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -6,9 +8,13 @@ import 'providers/provider.dart';
 import 'screens/home.dart';
 
 void main() {
-  sqfliteFfiInit();
+  WidgetsFlutterBinding.ensureInitialized();
 
-  databaseFactory = databaseFactoryFfi;
+  // Use FFI only on desktop
+  if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  }
 
   runApp(
     ChangeNotifierProvider(

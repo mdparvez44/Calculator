@@ -58,11 +58,18 @@ tested INTEGER
   //---------------------------------------------
   // Insert Record
   //---------------------------------------------
-
   Future<int> insertProduction(Production production) async {
     final db = await database;
 
-    return await db.insert("production", production.toMap());
+    final id = await db.insert(
+      "production",
+      production.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    print("Inserted row: $id");
+
+    return id;
   }
 
   //---------------------------------------------
