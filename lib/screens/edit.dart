@@ -221,7 +221,7 @@ class _EditRecordState extends State<EditRecord> {
 
                 input("Reject", rejectController, Icons.cancel, Colors.red),
 
-                input("QA", qaController, Icons.science, Colors.blue),
+                input("Q.C", qaController, Icons.science, Colors.blue),
 
                 input(
                   "Sample",

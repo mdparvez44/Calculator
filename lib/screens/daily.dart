@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../database/database.dart';
 
 class DailyReport extends StatefulWidget {
@@ -11,18 +10,18 @@ class DailyReport extends StatefulWidget {
 
 class _DailyReportState extends State<DailyReport> {
   List<Map<String, dynamic>> data = [];
-
   double totalTested = 0;
   double totalReject = 0;
   double totalQA = 0;
   double totalGood = 0;
 
-  // Truncate to 2 decimal places (NO ROUNDING)
+  // Added zoom state
+  double userZoom = 1.0;
+
   double truncateTo2(double value) {
     return (value * 100).truncate() / 100;
   }
 
-  // Convert SQLite values safely
   double toDouble(dynamic value) {
     if (value == null) return 0;
     return double.tryParse(value.toString()) ?? 0;
@@ -36,55 +35,56 @@ class _DailyReportState extends State<DailyReport> {
 
   Future<void> loadReport() async {
     final result = await DatabaseHelper.instance.getDailyReport();
-
     double tested = 0;
     double reject = 0;
     double qa = 0;
     double good = 0;
 
     for (var item in result) {
-      double itemTested = toDouble(item["totalTested"]) / 144;
-
-      double itemReject = toDouble(item["totalReject"]) / 144;
-
-      double itemQA = toDouble(item["totalQA"]) / 144;
-
-      tested += itemTested;
-      reject += itemReject;
-      qa += itemQA;
-
-      // GOOD = TESTED - (REJECT + QA + SAMPLE)
+      tested += toDouble(item["totalTested"]) / 144;
+      reject += toDouble(item["totalReject"]) / 144;
+      qa += toDouble(item["totalQ.C"]) / 144;
     }
     good = truncateTo2(tested) - truncateTo2(reject) - truncateTo2(qa);
 
     setState(() {
       data = result;
-
       totalTested = truncateTo2(tested);
-
       totalReject = truncateTo2(reject);
-
       totalQA = truncateTo2(qa);
-
       totalGood = good;
     });
   }
 
-  Widget reportBox(String title, String value) {
+  Widget reportBox(String title, String value, double scale) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(10),
-        margin: const EdgeInsets.all(5),
-        decoration: BoxDecoration(border: Border.all(color: Colors.black26)),
+        padding: EdgeInsets.all(6 * scale),
+        margin: EdgeInsets.all(2 * scale),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8 * scale),
+          border: Border.all(color: Colors.black26),
+        ),
         child: Column(
           children: [
-            Text(title, style: const TextStyle(fontSize: 12)),
-
-            const SizedBox(height: 4),
-
-            Text(
-              value,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                title,
+                style: TextStyle(fontSize: 10 * scale, color: Colors.black54),
+              ),
+            ),
+            SizedBox(height: 4 * scale),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                value,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16 * scale,
+                ),
+              ),
             ),
           ],
         ),
@@ -92,137 +92,162 @@ class _DailyReportState extends State<DailyReport> {
     );
   }
 
-  Widget tableHeader(String text) {
+  Widget tableHeader(String text, double scale) {
     return Padding(
-      padding: const EdgeInsets.all(6),
+      padding: EdgeInsets.all(4 * scale),
       child: Text(
         text,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12 * scale),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    // Apply userZoom to the screen scaling
+    double scale = (MediaQuery.of(context).size.width / 375) * userZoom;
     double rejectPercent = totalTested == 0
         ? 0
         : truncateTo2((totalReject / totalTested) * 100);
 
     return Scaffold(
       backgroundColor: const Color(0xffdddddd),
-
       appBar: AppBar(
-        title: const Text("Daily Production Report"),
-
+        title: Text(
+          "Daily Production Report",
+          style: TextStyle(fontSize: 18 * scale),
+        ),
         actions: [
-          IconButton(icon: const Icon(Icons.refresh), onPressed: loadReport),
+          IconButton(
+            icon: Icon(Icons.refresh, size: 24 * scale),
+            onPressed: loadReport,
+          ),
         ],
       ),
-
+      // Zoom Controls
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: null,
+            mini: true,
+            backgroundColor: Colors.blueGrey,
+            foregroundColor: Colors.white,
+            onPressed: () => setState(() => userZoom += 0.15),
+            child: const Icon(Icons.zoom_in),
+          ),
+          const SizedBox(height: 10),
+          FloatingActionButton(
+            heroTag: null,
+            mini: true,
+            backgroundColor: Colors.blueGrey,
+            foregroundColor: Colors.white,
+            onPressed: () => setState(() {
+              if (userZoom > 0.5) userZoom -= 0.15;
+            }),
+            child: const Icon(Icons.zoom_out),
+          ),
+        ],
+      ),
       body: Center(
         child: Container(
-          width: 900,
-
-          margin: const EdgeInsets.all(15),
-
-          padding: const EdgeInsets.all(20),
-
-          color: Colors.white,
-
+          width: double.infinity,
+          margin: EdgeInsets.all(12 * scale),
+          padding: EdgeInsets.all(16 * scale),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12 * scale),
+            boxShadow: const [BoxShadow(blurRadius: 5, color: Colors.black12)],
+          ),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-
               children: [
                 Center(
                   child: Column(
                     children: [
-                      const Text(
+                      Text(
                         "DAILY PRODUCTION REPORT",
-
+                        textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 24,
+                          fontSize: 20 * scale,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-
-                      const SizedBox(height: 5),
-
+                      SizedBox(height: 5 * scale),
                       Text(
                         "Date : ${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}",
+                        style: TextStyle(fontSize: 14 * scale),
                       ),
                     ],
                   ),
                 ),
-
-                const SizedBox(height: 20),
-
+                SizedBox(height: 16 * scale),
                 Row(
                   children: [
-                    reportBox("Tested Gross", totalTested.toStringAsFixed(2)),
-
-                    reportBox("Good Gross", totalGood.toStringAsFixed(2)),
-
-                    reportBox("Reject Gross", totalReject.toStringAsFixed(2)),
-
-                    reportBox("QA Gross", totalQA.toStringAsFixed(2)),
-
+                    reportBox(
+                      "Tested Gross",
+                      totalTested.toStringAsFixed(2),
+                      scale,
+                    ),
+                    reportBox(
+                      "Good Gross",
+                      totalGood.toStringAsFixed(2),
+                      scale,
+                    ),
+                    reportBox(
+                      "Reject Gross",
+                      totalReject.toStringAsFixed(2),
+                      scale,
+                    ),
+                    reportBox("Q.C Gross", totalQA.toStringAsFixed(2), scale),
                     reportBox(
                       "Reject %",
                       "${rejectPercent.toStringAsFixed(2)}%",
+                      scale,
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 20),
-
+                SizedBox(height: 20 * scale),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-
                   child: DataTable(
-                    border: TableBorder.all(color: Colors.black),
-
+                    border: TableBorder.all(color: Colors.black12),
                     headingRowColor: MaterialStateProperty.all(
                       const Color(0xffdddddd),
                     ),
-
+                    columnSpacing: 16 * scale,
+                    dataRowMinHeight: 35 * scale,
+                    dataRowMaxHeight: 45 * scale,
+                    headingRowHeight: 45 * scale,
+                    dataTextStyle: TextStyle(
+                      fontSize: 12 * scale,
+                      color: Colors.black87,
+                    ),
                     columns: [
-                      DataColumn(label: tableHeader("Machine")),
-
-                      DataColumn(label: tableHeader("P.Code")),
-
-                      DataColumn(label: tableHeader("Test Gross")),
-
-                      DataColumn(label: tableHeader("Good Gross")),
-
-                      DataColumn(label: tableHeader("Reject Gross")),
-
-                      DataColumn(label: tableHeader("Hold")),
-
-                      DataColumn(label: tableHeader("QA")),
-
-                      DataColumn(label: tableHeader("Reject %")),
+                      DataColumn(label: tableHeader("Machine", scale)),
+                      DataColumn(label: tableHeader("P.Code", scale)),
+                      DataColumn(label: tableHeader("Test Gross", scale)),
+                      DataColumn(label: tableHeader("Good Gross", scale)),
+                      DataColumn(label: tableHeader("Reject Gross", scale)),
+                      DataColumn(label: tableHeader("Hold", scale)),
+                      DataColumn(label: tableHeader("Q.C", scale)),
+                      DataColumn(label: tableHeader("Reject %", scale)),
                     ],
-
                     rows: data.map((item) {
                       double tested = truncateTo2(
                         toDouble(item["totalTested"]) / 144,
                       );
-
                       double reject = truncateTo2(
                         toDouble(item["totalReject"]) / 144,
                       );
-
-                      double qa = truncateTo2(toDouble(item["totalQA"]) / 144);
-
+                      double qa = truncateTo2(toDouble(item["totalQ.C"]) / 144);
                       double sample = truncateTo2(
                         toDouble(item["totalSample"]) / 144,
                       );
-
                       double good = truncateTo2(
                         tested - (reject + qa + sample),
                       );
-
                       double percent = tested == 0
                           ? 0
                           : truncateTo2((reject / tested) * 100);
@@ -230,21 +255,14 @@ class _DailyReportState extends State<DailyReport> {
                       return DataRow(
                         cells: [
                           DataCell(Text(item["machine"].toString())),
-
                           DataCell(
                             Text(item["productCodes"]?.toString() ?? ""),
                           ),
-
                           DataCell(Text(tested.toStringAsFixed(2))),
-
                           DataCell(Text(good.toStringAsFixed(2))),
-
                           DataCell(Text(reject.toStringAsFixed(2))),
-
                           const DataCell(Text("")),
-
                           DataCell(Text(qa.toStringAsFixed(2))),
-
                           DataCell(Text("${percent.toStringAsFixed(2)}%")),
                         ],
                       );

@@ -44,6 +44,8 @@ const List<String> plants = ["TTK", "A", "B", "C", "D", "E", "F", "G"];
 const List<String> productCodes = [
   "N53PM",
 
+  "N53RM",
+
   "N40UM",
 
   "N56TCFM",
@@ -53,6 +55,20 @@ const List<String> productCodes = [
   "R53DRM",
 
   "N58PM",
-
   "N58RM",
+  "N53CM",
+  "NS3FCM",
+  "N52FM",
+  "N53THM",
+  "N53TM",
+  "N53DM",
+  "N53CDM",
+  "N53PCM",
+  "Y53PM",
+  "O53PM",
+  "BULK",
+  "190MM",
+  "N49DSM",
+  "N49PM",
+  "R53PM",
 ];

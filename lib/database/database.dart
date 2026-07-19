@@ -124,32 +124,15 @@ tested INTEGER
     final db = await database;
 
     final result = await db.rawQuery('''
-
 SELECT
-
-machine,
-
-SUM(
-  good +
-  reject +
-  qa +
-  sample
-) AS totalTested
-
-
+  machine,
+  SUM(good + reject + qa + sample) AS totalTested,
+  SUM(reject) AS totalReject
 FROM production
-
-
 GROUP BY machine
-
-
 ORDER BY
-
-SUBSTR(machine,1,1),
-
-CAST(SUBSTR(machine,2) AS INTEGER)
-
-
+  SUBSTR(machine,1,1),
+  CAST(SUBSTR(machine,2) AS INTEGER)
 ''');
 
     return result;

@@ -7,88 +7,74 @@ class Display extends StatelessWidget {
   const Display({super.key});
 
   Widget buildBox(
+    BuildContext context,
     String title,
     String value,
     bool active,
     IconData icon,
     Color color,
   ) {
+    // Responsive scaling factor based on screen width
+    double screenWidth = MediaQuery.of(context).size.width;
+    double scale = screenWidth / 375; // 375 is a standard mobile base width
+
     return Expanded(
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-
-        margin: const EdgeInsets.all(6),
-
-        padding: const EdgeInsets.all(14),
-
+        margin: EdgeInsets.all(4 * scale),
+        padding: EdgeInsets.all(8 * scale),
         decoration: BoxDecoration(
           color: active ? color.withOpacity(0.25) : Colors.white,
-
-          borderRadius: BorderRadius.circular(18),
-
+          borderRadius: BorderRadius.circular(12 * scale),
           border: Border.all(
             color: active ? color : Colors.black26,
-
-            width: active ? 3 : 1,
+            width: active ? 2 : 1,
           ),
-
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
-              blurRadius: 8,
-
+              blurRadius: 4,
               color: Colors.black12,
-
-              offset: const Offset(0, 3),
+              offset: Offset(0, 2),
             ),
           ],
         ),
-
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-
-              children: [
-                Icon(icon, size: 20, color: color),
-
-                const SizedBox(width: 6),
-
-                Text(
-                  title,
-
-                  style: TextStyle(
-                    fontSize: 15,
-
-                    fontWeight: FontWeight.bold,
-
-                    color: color,
+            FittedBox(
+              // Ensures text doesn't overflow
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, size: 14 * scale, color: color),
+                  SizedBox(width: 4 * scale),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 12 * scale,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-
-            const SizedBox(height: 12),
-
+            SizedBox(height: 8 * scale),
             Container(
               width: double.infinity,
-
-              padding: const EdgeInsets.symmetric(vertical: 10),
-
+              padding: EdgeInsets.symmetric(vertical: 6 * scale),
               decoration: BoxDecoration(
                 color: active ? Colors.white : const Color(0xfff5f5f5),
-
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8 * scale),
               ),
-
-              child: Text(
-                value.isEmpty ? "0" : value,
-
-                textAlign: TextAlign.center,
-
-                style: const TextStyle(
-                  fontSize: 32,
-
-                  fontWeight: FontWeight.bold,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  value.isEmpty ? "0" : value,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 22 * scale,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -101,57 +87,48 @@ class Display extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.watch<ProductionProvider>();
+    double scale = MediaQuery.of(context).size.width / 375;
 
     return Container(
-      margin: const EdgeInsets.all(10),
-
-      padding: const EdgeInsets.all(8),
-
+      margin: EdgeInsets.all(8 * scale),
+      padding: EdgeInsets.all(4 * scale),
       decoration: BoxDecoration(
         color: const Color(0xffeceff1),
-
-        borderRadius: BorderRadius.circular(20),
-
-        boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black12)],
+        borderRadius: BorderRadius.circular(16 * scale),
+        boxShadow: const [BoxShadow(blurRadius: 6, color: Colors.black12)],
       ),
-
       child: Row(
         children: [
           buildBox(
+            context,
             "GOOD",
-
             p.good,
-
             p.currentField == 0,
-
             Icons.check_circle,
-
             Colors.green,
           ),
-
           buildBox(
+            context,
             "REJECT",
-
             p.reject,
-
             p.currentField == 1,
-
             Icons.cancel,
-
             Colors.red,
           ),
-
-          buildBox("QA", p.qa, p.currentField == 2, Icons.science, Colors.blue),
-
           buildBox(
+            context,
+            "Q.C",
+            p.qa,
+            p.currentField == 2,
+            Icons.science,
+            Colors.blue,
+          ),
+          buildBox(
+            context,
             "SAMPLE",
-
             p.sample,
-
             p.currentField == 3,
-
             Icons.inventory,
-
             Colors.orange,
           ),
         ],
