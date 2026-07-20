@@ -90,9 +90,16 @@ class Keypad extends StatelessWidget {
   }
 
   Widget row(BuildContext context, List<Widget> buttons, double scale) {
-    double h = rowHeight ?? (80.0 * scale);
-    return SizedBox(
-      height: h,
+    if (rowHeight != null) {
+      return SizedBox(
+        height: rowHeight,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: buttons,
+        ),
+      );
+    }
+    return Expanded(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: buttons,

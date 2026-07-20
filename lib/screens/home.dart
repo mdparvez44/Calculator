@@ -9,6 +9,9 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double scale = (screenWidth / 375).clamp(0.8, 1.25);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -21,19 +24,15 @@ class HomeScreen extends StatelessWidget {
         elevation: 2,
       ),
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            double calculatedRowHeight = (constraints.maxHeight * 0.12).clamp(42.0, 95.0);
-
-            return Column(
-              children: [
-                const Dropdowns(),
-                const Display(),
-                const Spacer(),
-                Keypad(rowHeight: calculatedRowHeight),
-              ],
-            );
-          },
+        child: Column(
+          children: [
+            const Dropdowns(),
+            const Display(),
+            SizedBox(height: 6 * scale),
+            const Expanded(
+              child: Keypad(),
+            ),
+          ],
         ),
       ),
     );
