@@ -1,4 +1,4 @@
-package com.example.et
+package com.gourav.etcalculator
 
 import io.flutter.embedding.android.FlutterActivity
 
