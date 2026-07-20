@@ -38,12 +38,14 @@ class _RecordScreenState extends State<RecordScreen> {
       if (item["plant"] == "TTK") productCode = "(TTK) $productCode";
 
       double testedGross = truncateTo2(
-        (item["totalTested"] as num).toDouble() / 144,
+        ((item["totalTested"] ?? 0) as num).toDouble() / 144,
       );
       double rejectGross = truncateTo2(
-        (item["totalReject"] as num).toDouble() / 144,
+        ((item["totalReject"] ?? 0) as num).toDouble() / 144,
       );
-      double qaGross = truncateTo2((item["totalQ.C"] as num).toDouble() / 144);
+      double qaGross = truncateTo2(
+        ((item["totalQA"] ?? item["totalQ.C"] ?? 0) as num).toDouble() / 144,
+      );
 
       if (!productMap.containsKey(productCode)) {
         productMap[productCode] = {
@@ -218,7 +220,7 @@ class _RecordScreenState extends State<RecordScreen> {
   @override
   Widget build(BuildContext context) {
     // Apply userZoom to the screen scaling
-    double scale = (MediaQuery.of(context).size.width / 375) * userZoom;
+    double scale = (MediaQuery.of(context).size.width / 375).clamp(0.8, 1.4) * userZoom;
     double overallRejectPercentage = totalTestedGross == 0
         ? 0
         : truncateTo2((totalRejectGross / totalTestedGross) * 100);

@@ -67,7 +67,7 @@ tested INTEGER
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
 
-    print("Inserted row: $id");
+    // debugPrint("Inserted row: $id");
 
     return id;
   }

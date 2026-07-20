@@ -95,7 +95,9 @@ class _EditRecordState extends State<EditRecord> {
 
     await DatabaseHelper.instance.updateProduction(updated);
 
-    Navigator.pop(context);
+    if (mounted) {
+      Navigator.pop(context);
+    }
   }
 
   Widget dropdown(
@@ -109,7 +111,7 @@ class _EditRecordState extends State<EditRecord> {
       margin: const EdgeInsets.symmetric(vertical: 6),
 
       child: DropdownButtonFormField<String>(
-        value: items.contains(value) ? value : items.first,
+        initialValue: items.contains(value) ? value : items.first,
 
         decoration: InputDecoration(
           labelText: title,
@@ -177,18 +179,14 @@ class _EditRecordState extends State<EditRecord> {
       body: Center(
         child: SingleChildScrollView(
           child: Container(
-            width: 600,
-
+            constraints: const BoxConstraints(maxWidth: 600),
+            width: double.infinity,
             margin: const EdgeInsets.all(15),
-
             padding: const EdgeInsets.all(20),
-
             decoration: BoxDecoration(
               color: Colors.white,
-
               borderRadius: BorderRadius.circular(18),
-
-              boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black12)],
+              boxShadow: const [BoxShadow(blurRadius: 10, color: Colors.black12)],
             ),
 
             child: Column(

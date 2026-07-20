@@ -18,72 +18,79 @@ class Dropdowns extends StatelessWidget {
     showDialog(
       context: context,
       builder: (BuildContext ctx) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16 * scale),
-          ),
-          title: Text(
-            "Select $title",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18 * scale),
-          ),
-          content: Container(
-            width: double.maxFinite,
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.6,
-            ),
-            child: GridView.builder(
-              shrinkWrap: true,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                childAspectRatio: 2.2,
-                crossAxisSpacing: 8 * scale,
-                mainAxisSpacing: 8 * scale,
-              ),
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                String item = items[index];
-                bool isSelected = item == currentValue;
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            double dialogWidth = constraints.maxWidth;
+            int crossAxisCount = dialogWidth > 600 ? 5 : (dialogWidth > 400 ? 4 : 3);
 
-                return InkWell(
-                  onTap: () {
-                    onChange(item);
-                    Navigator.pop(ctx);
-                  },
-                  borderRadius: BorderRadius.circular(8 * scale),
-                  child: Container(
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? Colors.blueGrey
-                          : Colors.grey.shade200,
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16 * scale),
+              ),
+              title: Text(
+                "Select $title",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18 * scale),
+              ),
+              content: Container(
+                width: double.maxFinite,
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.6,
+                ),
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    childAspectRatio: 2.2,
+                    crossAxisSpacing: 8 * scale,
+                    mainAxisSpacing: 8 * scale,
+                  ),
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    String item = items[index];
+                    bool isSelected = item == currentValue;
+
+                    return InkWell(
+                      onTap: () {
+                        onChange(item);
+                        Navigator.pop(ctx);
+                      },
                       borderRadius: BorderRadius.circular(8 * scale),
-                      border: Border.all(
-                        color: isSelected
-                            ? Colors.blueGrey.shade700
-                            : Colors.black12,
-                        width: isSelected ? 2 : 1,
-                      ),
-                    ),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 4 * scale),
-                        child: Text(
-                          item,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : Colors.black87,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13 * scale,
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? Colors.blueGrey
+                              : Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(8 * scale),
+                          border: Border.all(
+                            color: isSelected
+                                ? Colors.blueGrey.shade700
+                                : Colors.black12,
+                            width: isSelected ? 2 : 1,
+                          ),
+                        ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4 * scale),
+                            child: Text(
+                              item,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: isSelected ? Colors.white : Colors.black87,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13 * scale,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
+                    );
+                  },
+                ),
+              ),
+            );
+          },
         );
       },
     );
@@ -175,77 +182,86 @@ class Dropdowns extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.watch<ProductionProvider>();
-    double scale = MediaQuery.of(context).size.width / 375;
+    double screenWidth = MediaQuery.of(context).size.width;
+    double scale = (screenWidth / 375).clamp(0.8, 1.25);
 
     return Container(
-      margin: EdgeInsets.all(8 * scale),
-      padding: EdgeInsets.all(8 * scale),
+      margin: EdgeInsets.symmetric(horizontal: 8 * scale, vertical: 4 * scale),
+      padding: EdgeInsets.all(6 * scale),
       decoration: BoxDecoration(
         color: const Color(0xffeceff1),
         borderRadius: BorderRadius.circular(16 * scale),
-        boxShadow: const [BoxShadow(blurRadius: 6, color: Colors.black12)],
+        boxShadow: const [BoxShadow(blurRadius: 4, color: Colors.black12)],
       ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: Row(
-              children: [
-                Expanded(
-                  child: dropBox(
-                    context,
-                    "Machine",
-                    p.machine,
-                    machines,
-                    Icons.precision_manufacturing,
-                    (value) {
-                      p.changeMachine(value);
-                    },
-                    scale,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              flex: 2,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: dropBox(
+                      context,
+                      "Machine",
+                      p.machine,
+                      machines,
+                      Icons.precision_manufacturing,
+                      (value) => p.changeMachine(value),
+                      scale,
+                    ),
                   ),
-                ),
-                SizedBox(width: 8 * scale),
-                SizedBox(
-                  height: 65 * scale,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      backgroundColor: Colors.blueGrey,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12 * scale),
+                  SizedBox(width: 4 * scale),
+                  Tooltip(
+                    message: "Next Machine",
+                    child: SizedBox(
+                      width: 42 * scale,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          backgroundColor: Colors.blueGrey.shade700,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10 * scale),
+                          ),
+                        ),
+                        onPressed: p.nextMachine,
+                        child: Icon(Icons.skip_next, size: 22 * scale),
                       ),
                     ),
-                    onPressed: p.nextMachine,
-                    child: Icon(Icons.skip_next, size: 24 * scale),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          SizedBox(width: 8 * scale),
-          Expanded(
-            child: dropBox(context, "Plant", p.plant, plants, Icons.factory, (
-              value,
-            ) {
-              p.changePlant(value);
-            }, scale),
-          ),
-          SizedBox(width: 8 * scale),
-          Expanded(
-            child: dropBox(
-              context,
-              "Product Code",
-              p.productCode,
-              productCodes,
-              Icons.qr_code,
-              (value) {
-                p.changeProduct(value);
-              },
-              scale,
+            SizedBox(width: 4 * scale),
+            Expanded(
+              child: dropBox(
+                context,
+                "Plant",
+                p.plant,
+                plants,
+                Icons.factory,
+                (value) => p.changePlant(value),
+                scale,
+              ),
             ),
-          ),
-        ],
+            SizedBox(width: 4 * scale),
+            Expanded(
+              child: dropBox(
+                context,
+                "Product Code",
+                p.productCode,
+                productCodes,
+                Icons.qr_code,
+                (value) => p.changeProduct(value),
+                scale,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
+

@@ -14,7 +14,22 @@ rootProject.layout.buildDirectory.value(newBuildDir)
 subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
+
+    val proj = this
+    fun applyCompileSdk() {
+        val androidExt = proj.extensions.findByName("android") as? com.android.build.gradle.BaseExtension
+        androidExt?.compileSdkVersion(36)
+    }
+
+    if (proj.state.executed) {
+        applyCompileSdk()
+    } else {
+        proj.afterEvaluate {
+            applyCompileSdk()
+        }
+    }
 }
+
 subprojects {
     project.evaluationDependsOn(":app")
 }

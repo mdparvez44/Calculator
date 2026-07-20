@@ -138,9 +138,11 @@ class _InputSheetState extends State<InputSheet> {
         ], text: "Daily Production Report - $dateStr");
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Export failed: $e")));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Export failed: $e")));
+      }
     } finally {
       setState(() => isLoading = false);
     }
@@ -191,18 +193,20 @@ class _InputSheetState extends State<InputSheet> {
           }
         }
         await loadData();
-        if (mounted)
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("Successfully imported $importedCount records!"),
             ),
           );
+        }
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("Import failed. Error: $e")));
+      }
     } finally {
       setState(() => isLoading = false);
     }
@@ -222,7 +226,7 @@ class _InputSheetState extends State<InputSheet> {
   @override
   Widget build(BuildContext context) {
     // Apply userZoom to the screen scaling
-    double scale = (MediaQuery.of(context).size.width / 375) * userZoom;
+    double scale = (MediaQuery.of(context).size.width / 375).clamp(0.8, 1.4) * userZoom;
 
     return Scaffold(
       backgroundColor: const Color(0xffeeeeee),
@@ -367,7 +371,7 @@ class _InputSheetState extends State<InputSheet> {
                             child: SingleChildScrollView(
                               child: DataTable(
                                 headingRowColor:
-                                    MaterialStateProperty.resolveWith(
+                                    WidgetStateProperty.resolveWith(
                                       (states) => const Color(0xffdddddd),
                                     ),
                                 dataRowMinHeight: 35 * scale,
@@ -407,11 +411,12 @@ class _InputSheetState extends State<InputSheet> {
 
                                   return DataRow(
                                     color:
-                                        MaterialStateProperty.resolveWith<
+                                        WidgetStateProperty.resolveWith<
                                           Color?
                                         >((states) {
-                                          if (index % 2 == 0)
+                                          if (index % 2 == 0) {
                                             return const Color(0xfffafafa);
+                                          }
                                           return null;
                                         }),
                                     onSelectChanged: (value) {
@@ -436,8 +441,7 @@ class _InputSheetState extends State<InputSheet> {
                                       DataCell(Text(item.plant)),
                                       DataCell(
                                         Text(
-                                          (item.good + item.reject + item.qa)
-                                              .toString(),
+                                          item.tested.toString(),
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                           ),

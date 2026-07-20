@@ -83,7 +83,7 @@ class _GrossScreenState extends State<GrossScreen> {
   @override
   Widget build(BuildContext context) {
     // Multiply base scale by our userZoom
-    double scale = (MediaQuery.of(context).size.width / 375) * userZoom;
+    double scale = (MediaQuery.of(context).size.width / 375).clamp(0.8, 1.4) * userZoom;
 
     return Scaffold(
       backgroundColor: const Color(0xffeeeeee),
@@ -166,7 +166,7 @@ class _GrossScreenState extends State<GrossScreen> {
                           dataRowMaxHeight: 45 * scale,
                           columnSpacing: 25 * scale,
                           border: TableBorder.all(color: Colors.black12),
-                          headingRowColor: MaterialStateProperty.resolveWith(
+                          headingRowColor: WidgetStateProperty.resolveWith(
                             (states) => const Color(0xffdddddd),
                           ),
                           dataTextStyle: TextStyle(
@@ -183,11 +183,12 @@ class _GrossScreenState extends State<GrossScreen> {
                             int tested = item["totalTested"] ?? 0;
 
                             return DataRow(
-                              color: MaterialStateProperty.resolveWith<Color?>((
+                              color: WidgetStateProperty.resolveWith<Color?>((
                                 states,
                               ) {
-                                if (index % 2 == 0)
+                                if (index % 2 == 0) {
                                   return const Color(0xfffafafa);
+                                }
                                 return null;
                               }),
                               cells: [

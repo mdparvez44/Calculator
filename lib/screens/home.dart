@@ -10,18 +10,31 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("ET"), centerTitle: true),
+      appBar: AppBar(
+        title: const Text(
+          "ET",
+          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.blueGrey.shade900,
+        foregroundColor: Colors.white,
+        elevation: 2,
+      ),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            double calculatedRowHeight = (constraints.maxHeight * 0.095).clamp(46.0, 64.0);
 
-      body: Column(
-        children: [
-          const Dropdowns(),
-
-          const Display(),
-
-          const Spacer(),
-
-          const Keypad(),
-        ],
+            return Column(
+              children: [
+                const Dropdowns(),
+                const Display(),
+                const Spacer(),
+                Keypad(rowHeight: calculatedRowHeight),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

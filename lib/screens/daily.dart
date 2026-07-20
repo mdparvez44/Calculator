@@ -43,7 +43,7 @@ class _DailyReportState extends State<DailyReport> {
     for (var item in result) {
       tested += toDouble(item["totalTested"]) / 144;
       reject += toDouble(item["totalReject"]) / 144;
-      qa += toDouble(item["totalQ.C"]) / 144;
+      qa += toDouble(item["totalQA"] ?? item["totalQ.C"]) / 144;
     }
     good = truncateTo2(tested) - truncateTo2(reject) - truncateTo2(qa);
 
@@ -57,37 +57,38 @@ class _DailyReportState extends State<DailyReport> {
   }
 
   Widget reportBox(String title, String value, double scale) {
-    return Expanded(
-      child: Container(
-        padding: EdgeInsets.all(6 * scale),
-        margin: EdgeInsets.all(2 * scale),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8 * scale),
-          border: Border.all(color: Colors.black26),
-        ),
-        child: Column(
-          children: [
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                title,
-                style: TextStyle(fontSize: 10 * scale, color: Colors.black54),
+    return Container(
+      constraints: const BoxConstraints(minWidth: 65),
+      padding: EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 8 * scale),
+      margin: EdgeInsets.all(3 * scale),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8 * scale),
+        border: Border.all(color: Colors.black26),
+        boxShadow: const [BoxShadow(blurRadius: 3, color: Colors.black12)],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              title,
+              style: TextStyle(fontSize: 11 * scale, color: Colors.black54, fontWeight: FontWeight.bold),
+            ),
+          ),
+          SizedBox(height: 4 * scale),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15 * scale,
               ),
             ),
-            SizedBox(height: 4 * scale),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                value,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16 * scale,
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -105,7 +106,7 @@ class _DailyReportState extends State<DailyReport> {
   @override
   Widget build(BuildContext context) {
     // Apply userZoom to the screen scaling
-    double scale = (MediaQuery.of(context).size.width / 375) * userZoom;
+    double scale = (MediaQuery.of(context).size.width / 375).clamp(0.8, 1.4) * userZoom;
     double rejectPercent = totalTested == 0
         ? 0
         : truncateTo2((totalReject / totalTested) * 100);
@@ -149,11 +150,11 @@ class _DailyReportState extends State<DailyReport> {
           ),
         ],
       ),
-      body: Center(
+      body: SafeArea(
         child: Container(
           width: double.infinity,
-          margin: EdgeInsets.all(12 * scale),
-          padding: EdgeInsets.all(16 * scale),
+          margin: EdgeInsets.all(8 * scale),
+          padding: EdgeInsets.all(12 * scale),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12 * scale),
@@ -170,53 +171,56 @@ class _DailyReportState extends State<DailyReport> {
                         "DAILY PRODUCTION REPORT",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 20 * scale,
+                          fontSize: 18 * scale,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 5 * scale),
+                      SizedBox(height: 4 * scale),
                       Text(
                         "Date : ${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}",
-                        style: TextStyle(fontSize: 14 * scale),
+                        style: TextStyle(fontSize: 13 * scale),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 16 * scale),
-                Row(
-                  children: [
-                    reportBox(
-                      "Tested Gross",
-                      totalTested.toStringAsFixed(2),
-                      scale,
-                    ),
-                    reportBox(
-                      "Good Gross",
-                      totalGood.toStringAsFixed(2),
-                      scale,
-                    ),
-                    reportBox(
-                      "Reject Gross",
-                      totalReject.toStringAsFixed(2),
-                      scale,
-                    ),
-                    reportBox("Q.C Gross", totalQA.toStringAsFixed(2), scale),
-                    reportBox(
-                      "Reject %",
-                      "${rejectPercent.toStringAsFixed(2)}%",
-                      scale,
-                    ),
-                  ],
+                SizedBox(height: 14 * scale),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    bool isNarrow = constraints.maxWidth < 420;
+                    if (isNarrow) {
+                      return Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 4 * scale,
+                        runSpacing: 6 * scale,
+                        children: [
+                          reportBox("Tested Gross", totalTested.toStringAsFixed(2), scale),
+                          reportBox("Good Gross", totalGood.toStringAsFixed(2), scale),
+                          reportBox("Reject Gross", totalReject.toStringAsFixed(2), scale),
+                          reportBox("Q.C Gross", totalQA.toStringAsFixed(2), scale),
+                          reportBox("Reject %", "${rejectPercent.toStringAsFixed(2)}%", scale),
+                        ],
+                      );
+                    }
+                    return Row(
+                      children: [
+                        Expanded(child: reportBox("Tested Gross", totalTested.toStringAsFixed(2), scale)),
+                        Expanded(child: reportBox("Good Gross", totalGood.toStringAsFixed(2), scale)),
+                        Expanded(child: reportBox("Reject Gross", totalReject.toStringAsFixed(2), scale)),
+                        Expanded(child: reportBox("Q.C Gross", totalQA.toStringAsFixed(2), scale)),
+                        Expanded(child: reportBox("Reject %", "${rejectPercent.toStringAsFixed(2)}%", scale)),
+                      ],
+                    );
+                  },
                 ),
-                SizedBox(height: 20 * scale),
+                SizedBox(height: 16 * scale),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: DataTable(
                     border: TableBorder.all(color: Colors.black12),
-                    headingRowColor: MaterialStateProperty.all(
+                    headingRowColor: WidgetStateProperty.all(
                       const Color(0xffdddddd),
                     ),
-                    columnSpacing: 16 * scale,
+                    columnSpacing: 14 * scale,
                     dataRowMinHeight: 35 * scale,
                     dataRowMaxHeight: 45 * scale,
                     headingRowHeight: 45 * scale,
@@ -241,7 +245,7 @@ class _DailyReportState extends State<DailyReport> {
                       double reject = truncateTo2(
                         toDouble(item["totalReject"]) / 144,
                       );
-                      double qa = truncateTo2(toDouble(item["totalQ.C"]) / 144);
+                      double qa = truncateTo2(toDouble(item["totalQA"] ?? item["totalQ.C"]) / 144);
                       double sample = truncateTo2(
                         toDouble(item["totalSample"]) / 144,
                       );

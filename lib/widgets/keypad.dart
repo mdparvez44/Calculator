@@ -8,7 +8,9 @@ import '../screens/input.dart';
 import '../screens/record.dart';
 
 class Keypad extends StatelessWidget {
-  const Keypad({super.key});
+  final double? rowHeight;
+
+  const Keypad({super.key, this.rowHeight});
 
   Widget button(
     BuildContext context,
@@ -20,20 +22,15 @@ class Keypad extends StatelessWidget {
   }) {
     return Expanded(
       child: Padding(
-        padding: EdgeInsets.all(6 * scale),
+        padding: EdgeInsets.all(3 * scale),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: color ?? const Color(0xff37474F),
             foregroundColor: textColor,
-            elevation: 5,
-            padding:
-                EdgeInsets.zero, // Remove default padding to maximize space
-            minimumSize: Size(
-              60 * scale,
-              65 * scale,
-            ), // Dynamically scaled button size
+            elevation: 4,
+            padding: EdgeInsets.zero,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16 * scale),
+              borderRadius: BorderRadius.circular(12 * scale),
             ),
           ),
           onPressed: () async {
@@ -77,11 +74,11 @@ class Keypad extends StatelessWidget {
           child: FittedBox(
             fit: BoxFit.scaleDown,
             child: icon != null
-                ? Icon(icon, size: 28 * scale, color: Colors.white)
+                ? Icon(icon, size: 24 * scale, color: Colors.white)
                 : Text(
                     text,
                     style: TextStyle(
-                      fontSize: 22 * scale,
+                      fontSize: 19 * scale,
                       fontWeight: FontWeight.bold,
                       color: textColor,
                     ),
@@ -92,23 +89,32 @@ class Keypad extends StatelessWidget {
     );
   }
 
-  Widget row(BuildContext context, List<Widget> buttons) {
-    return Row(children: buttons);
+  Widget row(BuildContext context, List<Widget> buttons, double scale) {
+    double h = rowHeight ?? (56.0 * scale);
+    return SizedBox(
+      height: h,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: buttons,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // Determine screen scale
-    double scale = MediaQuery.of(context).size.width / 375;
+    double screenWidth = MediaQuery.of(context).size.width;
+    double scale = (screenWidth / 375).clamp(0.85, 1.25);
 
     return Container(
-      padding: EdgeInsets.all(8 * scale),
+      padding: EdgeInsets.all(6 * scale),
+      margin: EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 6 * scale),
       decoration: BoxDecoration(
         color: const Color(0xff263238),
         borderRadius: BorderRadius.circular(20 * scale),
-        boxShadow: const [BoxShadow(blurRadius: 15, color: Colors.black26)],
+        boxShadow: const [BoxShadow(blurRadius: 10, color: Colors.black26)],
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           row(context, [
             button(
@@ -122,10 +128,8 @@ class Keypad extends StatelessWidget {
             button(context, "8", scale),
             button(context, "9", scale),
             button(context, "I", scale, color: Colors.blue.shade700),
-          ]),
+          ], scale),
           row(context, [
-            // IMPORTANT:
-            // text remains X for operation
             button(
               context,
               "X",
@@ -137,7 +141,7 @@ class Keypad extends StatelessWidget {
             button(context, "5", scale),
             button(context, "6", scale),
             button(context, "G", scale, color: Colors.green.shade700),
-          ]),
+          ], scale),
           row(context, [
             button(
               context,
@@ -150,7 +154,7 @@ class Keypad extends StatelessWidget {
             button(context, "2", scale),
             button(context, "3", scale),
             button(context, "R", scale, color: Colors.purple.shade700),
-          ]),
+          ], scale),
           row(context, [
             button(context, "0", scale),
             button(context, "00", scale),
@@ -163,7 +167,7 @@ class Keypad extends StatelessWidget {
               icon: Icons.check_circle,
             ),
             button(context, "D", scale, color: Colors.teal.shade700),
-          ]),
+          ], scale),
         ],
       ),
     );

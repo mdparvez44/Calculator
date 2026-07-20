@@ -16,6 +16,13 @@ class ProductionProvider extends ChangeNotifier {
 
   int currentField = 0;
 
+  void selectField(int index) {
+    if (index >= 0 && index <= 3) {
+      currentField = index;
+      notifyListeners();
+    }
+  }
+
   // ================= Number Pad =================
 
   void addNumber(String value) {
