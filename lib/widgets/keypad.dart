@@ -22,15 +22,15 @@ class Keypad extends StatelessWidget {
   }) {
     return Expanded(
       child: Padding(
-        padding: EdgeInsets.all(4 * scale),
+        padding: EdgeInsets.all(3.5 * scale),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: color ?? const Color(0xff37474F),
             foregroundColor: textColor,
-            elevation: 4,
+            elevation: 3,
             padding: EdgeInsets.zero,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14 * scale),
+              borderRadius: BorderRadius.circular(12 * scale),
             ),
           ),
           onPressed: () async {
@@ -74,11 +74,11 @@ class Keypad extends StatelessWidget {
           child: FittedBox(
             fit: BoxFit.scaleDown,
             child: icon != null
-                ? Icon(icon, size: 30 * scale, color: Colors.white)
+                ? Icon(icon, size: 25 * scale, color: Colors.white)
                 : Text(
                     text,
                     style: TextStyle(
-                      fontSize: 24 * scale,
+                      fontSize: 20 * scale,
                       fontWeight: FontWeight.bold,
                       color: textColor,
                     ),
@@ -90,16 +90,9 @@ class Keypad extends StatelessWidget {
   }
 
   Widget row(BuildContext context, List<Widget> buttons, double scale) {
-    if (rowHeight != null) {
-      return SizedBox(
-        height: rowHeight,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: buttons,
-        ),
-      );
-    }
-    return Expanded(
+    double h = rowHeight ?? (52.0 * scale);
+    return SizedBox(
+      height: h,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: buttons,
@@ -110,7 +103,7 @@ class Keypad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double scale = (screenWidth / 375).clamp(0.9, 1.35);
+    double scale = (screenWidth / 375).clamp(0.85, 1.25);
 
     return Container(
       padding: EdgeInsets.all(6 * scale),
