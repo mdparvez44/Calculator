@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.gourav.etcalculator"
+    namespace = "com.etcalculator.app"
     compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
@@ -16,7 +16,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.gourav.etcalculator"
+        applicationId = "com.etcalculator.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
