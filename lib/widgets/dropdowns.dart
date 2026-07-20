@@ -109,47 +109,50 @@ class Dropdowns extends StatelessWidget {
     String displayValue = (value.trim().isEmpty) ? "Select" : value;
 
     return Container(
-      padding: EdgeInsets.all(8 * scale),
+      padding: EdgeInsets.all(4 * scale),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12 * scale),
+        borderRadius: BorderRadius.circular(10 * scale),
         border: Border.all(color: Colors.black26),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
             child: Row(
               children: [
-                Icon(icon, size: 16 * scale),
-                SizedBox(width: 4 * scale),
+                Icon(icon, size: 14 * scale, color: Colors.blueGrey.shade700),
+                SizedBox(width: 3 * scale),
                 Text(
                   title,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 12 * scale,
+                    fontSize: 11 * scale,
+                    color: Colors.blueGrey.shade800,
                   ),
                 ),
               ],
             ),
           ),
-          SizedBox(height: 5 * scale),
+          SizedBox(height: 3 * scale),
           InkWell(
             onTap: () =>
                 _showGridDialog(context, title, value, items, onChange, scale),
-            borderRadius: BorderRadius.circular(8 * scale),
+            borderRadius: BorderRadius.circular(6 * scale),
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 10 * scale,
-                vertical: 10 * scale,
+                horizontal: 6 * scale,
+                vertical: 6 * scale,
               ),
               decoration: BoxDecoration(
                 color: const Color(0xfff5f5f5),
-                borderRadius: BorderRadius.circular(8 * scale),
+                borderRadius: BorderRadius.circular(6 * scale),
                 border: Border.all(color: Colors.black26),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     child: FittedBox(
@@ -170,7 +173,7 @@ class Dropdowns extends StatelessWidget {
                   ),
                   Icon(
                     Icons.arrow_drop_down,
-                    size: 18 * scale,
+                    size: 16 * scale,
                     color: Colors.black54,
                   ),
                 ],
