@@ -22,7 +22,7 @@ class Keypad extends StatelessWidget {
   }) {
     return Expanded(
       child: Padding(
-        padding: EdgeInsets.all(3 * scale),
+        padding: EdgeInsets.all(4 * scale),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: color ?? const Color(0xff37474F),
@@ -30,7 +30,7 @@ class Keypad extends StatelessWidget {
             elevation: 4,
             padding: EdgeInsets.zero,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12 * scale),
+              borderRadius: BorderRadius.circular(14 * scale),
             ),
           ),
           onPressed: () async {
@@ -74,11 +74,11 @@ class Keypad extends StatelessWidget {
           child: FittedBox(
             fit: BoxFit.scaleDown,
             child: icon != null
-                ? Icon(icon, size: 24 * scale, color: Colors.white)
+                ? Icon(icon, size: 28 * scale, color: Colors.white)
                 : Text(
                     text,
                     style: TextStyle(
-                      fontSize: 19 * scale,
+                      fontSize: 22 * scale,
                       fontWeight: FontWeight.bold,
                       color: textColor,
                     ),
@@ -90,7 +90,7 @@ class Keypad extends StatelessWidget {
   }
 
   Widget row(BuildContext context, List<Widget> buttons, double scale) {
-    double h = rowHeight ?? (56.0 * scale);
+    double h = rowHeight ?? (68.0 * scale);
     return SizedBox(
       height: h,
       child: Row(
@@ -103,7 +103,7 @@ class Keypad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double scale = (screenWidth / 375).clamp(0.85, 1.25);
+    double scale = (screenWidth / 375).clamp(0.9, 1.35);
 
     return Container(
       padding: EdgeInsets.all(6 * scale),
