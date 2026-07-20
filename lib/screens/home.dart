@@ -25,7 +25,7 @@ class HomeScreen extends StatelessWidget {
           builder: (context, constraints) {
             double calculatedRowHeight = (constraints.maxHeight < 600)
                 ? (constraints.maxHeight * 0.072)
-                : (constraints.maxHeight * 0.11).clamp(40.0, 95.0);
+                : (constraints.maxHeight * 0.10).clamp(40.0, 90.0);
 
             return Column(
               children: [

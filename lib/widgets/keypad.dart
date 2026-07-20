@@ -74,11 +74,11 @@ class Keypad extends StatelessWidget {
           child: FittedBox(
             fit: BoxFit.scaleDown,
             child: icon != null
-                ? Icon(icon, size: 28 * scale, color: Colors.white)
+                ? Icon(icon, size: 27 * scale, color: Colors.white)
                 : Text(
                     text,
                     style: TextStyle(
-                      fontSize: 23 * scale,
+                      fontSize: 22 * scale,
                       fontWeight: FontWeight.bold,
                       color: textColor,
                     ),
@@ -90,7 +90,7 @@ class Keypad extends StatelessWidget {
   }
 
   Widget row(BuildContext context, List<Widget> buttons, double scale) {
-    double h = rowHeight ?? (70.0 * scale);
+    double h = rowHeight ?? (64.0 * scale);
     return SizedBox(
       height: h,
       child: Row(
