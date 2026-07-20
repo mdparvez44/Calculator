@@ -20,14 +20,20 @@ class HomeScreen extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 2,
       ),
-      body: const SafeArea(
-        child: Column(
-          children: [
-            Dropdowns(),
-            Display(),
-            Spacer(),
-            Keypad(),
-          ],
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            double calculatedRowHeight = (constraints.maxHeight * 0.095).clamp(32.0, 78.0);
+
+            return Column(
+              children: [
+                const Dropdowns(),
+                const Display(),
+                const Spacer(),
+                Keypad(rowHeight: calculatedRowHeight),
+              ],
+            );
+          },
         ),
       ),
     );

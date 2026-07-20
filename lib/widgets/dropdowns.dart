@@ -199,75 +199,76 @@ class Dropdowns extends StatelessWidget {
         borderRadius: BorderRadius.circular(14 * scale),
         boxShadow: const [BoxShadow(blurRadius: 4, color: Colors.black12)],
       ),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              flex: 5,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: dropBox(
-                      context,
-                      "Machine",
-                      p.machine,
-                      machines,
-                      Icons.precision_manufacturing,
-                      (value) => p.changeMachine(value),
-                      scale,
-                    ),
-                  ),
-                  SizedBox(width: 3 * scale),
-                  Tooltip(
-                    message: "Next Machine",
-                    child: SizedBox(
-                      width: 38 * scale,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          backgroundColor: Colors.blueGrey.shade700,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10 * scale),
+      child: Column(
+        children: [
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  flex: 5,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: dropBox(
+                          context,
+                          "Machine",
+                          p.machine,
+                          machines,
+                          Icons.precision_manufacturing,
+                          (value) => p.changeMachine(value),
+                          scale,
+                        ),
+                      ),
+                      SizedBox(width: 3 * scale),
+                      Tooltip(
+                        message: "Next Machine",
+                        child: SizedBox(
+                          width: 38 * scale,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              backgroundColor: Colors.blueGrey.shade700,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10 * scale),
+                              ),
+                            ),
+                            onPressed: p.nextMachine,
+                            child: Icon(Icons.skip_next, size: 20 * scale),
                           ),
                         ),
-                        onPressed: p.nextMachine,
-                        child: Icon(Icons.skip_next, size: 20 * scale),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                SizedBox(width: 4 * scale),
+                Expanded(
+                  flex: 4,
+                  child: dropBox(
+                    context,
+                    "Plant",
+                    p.plant,
+                    plants,
+                    Icons.factory,
+                    (value) => p.changePlant(value),
+                    scale,
+                  ),
+                ),
+              ],
             ),
-            SizedBox(width: 4 * scale),
-            Expanded(
-              flex: 3,
-              child: dropBox(
-                context,
-                "Plant",
-                p.plant,
-                plants,
-                Icons.factory,
-                (value) => p.changePlant(value),
-                scale,
-              ),
-            ),
-            SizedBox(width: 4 * scale),
-            Expanded(
-              flex: 5,
-              child: dropBox(
-                context,
-                "Product Code",
-                p.productCode,
-                productCodes,
-                Icons.qr_code,
-                (value) => p.changeProduct(value),
-                scale,
-              ),
-            ),
-          ],
-        ),
+          ),
+          SizedBox(height: 4 * scale),
+          dropBox(
+            context,
+            "Product Code",
+            p.productCode,
+            productCodes,
+            Icons.qr_code,
+            (value) => p.changeProduct(value),
+            scale,
+          ),
+        ],
       ),
     );
   }
