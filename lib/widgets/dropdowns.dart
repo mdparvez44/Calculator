@@ -152,22 +152,25 @@ class Dropdowns extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text(
-                      displayValue, // Will now correctly show the item or "Select"
-                      style: TextStyle(
-                        fontSize: 14 * scale,
-                        fontWeight: FontWeight.bold,
-                        // Make placeholder text slightly faded
-                        color: displayValue == "Select"
-                            ? Colors.black54
-                            : Colors.black,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        displayValue,
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: 13 * scale,
+                          fontWeight: FontWeight.bold,
+                          color: displayValue == "Select"
+                              ? Colors.black54
+                              : Colors.black,
+                        ),
                       ),
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   Icon(
                     Icons.arrow_drop_down,
-                    size: 20 * scale,
+                    size: 18 * scale,
                     color: Colors.black54,
                   ),
                 ],
@@ -186,11 +189,11 @@ class Dropdowns extends StatelessWidget {
     double scale = (screenWidth / 375).clamp(0.8, 1.25);
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 8 * scale, vertical: 4 * scale),
-      padding: EdgeInsets.all(6 * scale),
+      margin: EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 4 * scale),
+      padding: EdgeInsets.all(5 * scale),
       decoration: BoxDecoration(
         color: const Color(0xffeceff1),
-        borderRadius: BorderRadius.circular(16 * scale),
+        borderRadius: BorderRadius.circular(14 * scale),
         boxShadow: const [BoxShadow(blurRadius: 4, color: Colors.black12)],
       ),
       child: IntrinsicHeight(
@@ -198,7 +201,7 @@ class Dropdowns extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              flex: 2,
+              flex: 5,
               child: Row(
                 children: [
                   Expanded(
@@ -212,11 +215,11 @@ class Dropdowns extends StatelessWidget {
                       scale,
                     ),
                   ),
-                  SizedBox(width: 4 * scale),
+                  SizedBox(width: 3 * scale),
                   Tooltip(
                     message: "Next Machine",
                     child: SizedBox(
-                      width: 42 * scale,
+                      width: 38 * scale,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.zero,
@@ -227,7 +230,7 @@ class Dropdowns extends StatelessWidget {
                           ),
                         ),
                         onPressed: p.nextMachine,
-                        child: Icon(Icons.skip_next, size: 22 * scale),
+                        child: Icon(Icons.skip_next, size: 20 * scale),
                       ),
                     ),
                   ),
@@ -236,6 +239,7 @@ class Dropdowns extends StatelessWidget {
             ),
             SizedBox(width: 4 * scale),
             Expanded(
+              flex: 3,
               child: dropBox(
                 context,
                 "Plant",
@@ -248,6 +252,7 @@ class Dropdowns extends StatelessWidget {
             ),
             SizedBox(width: 4 * scale),
             Expanded(
+              flex: 5,
               child: dropBox(
                 context,
                 "Product Code",
