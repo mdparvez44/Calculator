@@ -23,8 +23,8 @@ class Display extends StatelessWidget {
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          margin: EdgeInsets.all(3 * scale),
-          padding: EdgeInsets.all(6 * scale),
+          margin: EdgeInsets.all(3.5 * scale),
+          padding: EdgeInsets.all(7 * scale),
           decoration: BoxDecoration(
             color: active ? color.withValues(alpha: 0.18) : Colors.white,
             borderRadius: BorderRadius.circular(12 * scale),
@@ -48,12 +48,12 @@ class Display extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(icon, size: 14 * scale, color: color),
-                    SizedBox(width: 3 * scale),
+                    Icon(icon, size: 16 * scale, color: color),
+                    SizedBox(width: 3.5 * scale),
                     Text(
                       title,
                       style: TextStyle(
-                        fontSize: 12 * scale,
+                        fontSize: 13.5 * scale,
                         fontWeight: FontWeight.bold,
                         color: color,
                       ),
@@ -64,7 +64,7 @@ class Display extends StatelessWidget {
               SizedBox(height: 6 * scale),
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: 4 * scale, horizontal: 2 * scale),
+                padding: EdgeInsets.symmetric(vertical: 6 * scale, horizontal: 3 * scale),
                 decoration: BoxDecoration(
                   color: active ? Colors.white : const Color(0xfff5f5f5),
                   borderRadius: BorderRadius.circular(8 * scale),
@@ -76,7 +76,7 @@ class Display extends StatelessWidget {
                     value.isEmpty ? "0" : value,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 20 * scale,
+                      fontSize: 23 * scale,
                       fontWeight: FontWeight.bold,
                       color: active ? color : Colors.black87,
                     ),
